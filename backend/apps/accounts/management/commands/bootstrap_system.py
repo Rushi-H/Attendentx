@@ -37,7 +37,7 @@ class Command(BaseCommand):
             office=office,
             defaults={
                 'verification_mode': VerificationMode.STRICT_IP_ALLOWLIST,
-                'allowed_ip_ranges': [f"{office_ip}/32", "127.0.0.1/32"],
+                'allowed_ip_ranges': [office_ip if '/' in office_ip else f"{office_ip}/32", "127.0.0.1/32"],
                 'strict_mode_enabled': True,
                 'is_active': True
             }
