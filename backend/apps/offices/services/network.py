@@ -34,19 +34,50 @@ class NetworkVerificationService:
     def get_client_ip(request):
         """
         Derives the client IP securely.
-        Uses NUM_PROXIES to prevent forged X-Forwarded-For headers.
+        1. Checks Cloudflare CF-Connecting-IP (Render production edge).
+        2. Checks X-Real-IP if public.
+        3. Parses X-Forwarded-For, properly bypassing internal container/proxy gateways (RFC1918).
+        4. Respects NUM_PROXIES if configured.
+        5. Falls back to REMOTE_ADDR.
         """
+        # 1. Cloudflare Connecting IP (Render's edge uses Cloudflare; cannot be spoofed by client)
+        cf_ip = request.META.get('HTTP_CF_CONNECTING_IP')
+        if cf_ip and cf_ip.strip():
+            return cf_ip.strip()
+
+        # 2. X-Real-IP if public
+        x_real_ip = request.META.get('HTTP_X_REAL_IP')
+        if x_real_ip and x_real_ip.strip():
+            clean_real = x_real_ip.strip()
+            try:
+                if not ipaddress.ip_address(clean_real).is_private:
+                    return clean_real
+            except ValueError:
+                pass
+
+        remote_addr = request.META.get('REMOTE_ADDR', '127.0.0.1')
+        try:
+            remote_is_private = ipaddress.ip_address(remote_addr).is_private
+        except ValueError:
+            remote_is_private = False
+
         num_proxies = getattr(settings, 'NUM_PROXIES', 0)
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
 
-        if x_forwarded_for and num_proxies > 0:
-            parts = [p.strip() for p in x_forwarded_for.split(',')]
-            if len(parts) >= num_proxies:
-                client_ip = parts[-num_proxies]
-                return client_ip
+        # If behind a proxy (NUM_PROXIES > 0 or connection arrives from an internal cloud container gateway)
+        if x_forwarded_for and (num_proxies > 0 or remote_is_private):
+            parts = [p.strip() for p in x_forwarded_for.split(',') if p.strip()]
+            for ip_str in parts:
+                try:
+                    ip_obj = ipaddress.ip_address(ip_str)
+                    if not ip_obj.is_private and not ip_obj.is_loopback:
+                        return ip_str
+                except ValueError:
+                    continue
+            if parts:
+                return parts[0]
 
         # Direct remote address fallback
-        remote_addr = request.META.get('REMOTE_ADDR', '127.0.0.1')
         return remote_addr
 
     @classmethod
