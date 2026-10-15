@@ -139,6 +139,13 @@ export const Login: React.FC = () => {
             </div>
           </div> */}
         </div>
+
+        {/* Bottom Corner Footer */}
+        <div className="mt-6 text-center sm:text-right px-2">
+          <p className="text-xs text-slate-400 font-medium tracking-tight">
+            Developed by <span className="font-semibold text-slate-600">REV</span>
+          </p>
+        </div>
       </div>
     </div>
   );

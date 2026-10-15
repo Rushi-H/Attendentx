@@ -188,6 +188,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <LogOut className="w-4 h-4" />
             </button>
           </div>
+          <div className="mt-2.5 pt-2 border-t border-slate-800/80 text-right">
+            <span className="text-[10px] text-slate-500 font-medium">
+              Developed by <span className="text-slate-400 font-semibold">REV</span>
+            </span>
+          </div>
         </div>
       </aside>
     </>
