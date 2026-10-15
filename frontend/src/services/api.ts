@@ -54,10 +54,13 @@ export function getCsrfTokenFromCookie(): string | null {
 }
 
 // Request interceptor to attach CSRF token for unsafe methods
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
   const method = config.method?.toUpperCase();
   if (method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    const csrfToken = getStoredCsrfToken();
+    let csrfToken = getStoredCsrfToken();
+    if (!csrfToken) {
+      csrfToken = await initializeCsrf();
+    }
     if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
     }

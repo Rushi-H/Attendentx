@@ -20,7 +20,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchSession = async () => {
     try {
-      const currentUser = await authService.getCurrentUser();
+      const [currentUser] = await Promise.all([
+        authService.getCurrentUser(),
+        authService.getCsrf().catch(() => null),
+      ]);
       setUser(currentUser);
     } catch (error) {
       setUser(null);
