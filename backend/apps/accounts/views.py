@@ -27,7 +27,9 @@ class CSRFTokenView(views.APIView):
     @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         token = get_token(request)
-        return standard_response({'csrfToken': token}, message="CSRF token initialized")
+        response = standard_response({'csrfToken': token}, message="CSRF token initialized")
+        response['X-CSRFToken'] = token
+        return response
 
 class LoginView(views.APIView):
     permission_classes = [permissions.AllowAny]
@@ -38,8 +40,11 @@ class LoginView(views.APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         login(request, user)
+        token = get_token(request)
         user_data = UserSerializer(user).data
-        return standard_response(user_data, message="Successfully authenticated")
+        response = standard_response(user_data, message="Successfully authenticated")
+        response['X-CSRFToken'] = token
+        return response
 
 class LogoutView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]

@@ -15,7 +15,32 @@ export const api = axios.create({
   },
 });
 
-// Helper to get CSRF cookie
+// In-memory CSRF token store for cross-origin deployments
+let inMemoryCsrfToken: string | null = null;
+
+export function setCsrfToken(token: string | null) {
+  inMemoryCsrfToken = token;
+  if (token) {
+    try {
+      sessionStorage.setItem('csrftoken', token);
+    } catch {}
+  } else {
+    try {
+      sessionStorage.removeItem('csrftoken');
+    } catch {}
+  }
+}
+
+export function getStoredCsrfToken(): string | null {
+  if (inMemoryCsrfToken) return inMemoryCsrfToken;
+  try {
+    const stored = sessionStorage.getItem('csrftoken');
+    if (stored) return stored;
+  } catch {}
+  return getCsrfTokenFromCookie();
+}
+
+// Helper to get CSRF cookie (same-origin fallback)
 export function getCsrfTokenFromCookie(): string | null {
   const name = 'csrftoken';
   const cookies = document.cookie.split(';');
@@ -32,7 +57,7 @@ export function getCsrfTokenFromCookie(): string | null {
 api.interceptors.request.use((config) => {
   const method = config.method?.toUpperCase();
   if (method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    const csrfToken = getCsrfTokenFromCookie();
+    const csrfToken = getStoredCsrfToken();
     if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
     }
@@ -40,11 +65,29 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor to capture updated CSRF tokens from headers
+api.interceptors.response.use(
+  (response) => {
+    const csrfHeader = response.headers?.['x-csrftoken'] || response.headers?.['X-CSRFToken'];
+    if (csrfHeader) {
+      setCsrfToken(csrfHeader);
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Initialize CSRF token from server
 export async function initializeCsrf(): Promise<string | null> {
   try {
     const res = await api.get('/auth/csrf/');
-    return res.data?.data?.csrfToken || null;
+    const token = res.data?.data?.csrfToken || null;
+    if (token) {
+      setCsrfToken(token);
+    }
+    return token;
   } catch (e) {
     console.warn('Failed to pre-fetch CSRF token:', e);
     return null;

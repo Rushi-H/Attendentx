@@ -22,9 +22,9 @@ services:
           name: attendance-db
           property: connectionString
       - key: CORS_ALLOWED_ORIGINS
-        value: "http://localhost:5173,http://127.0.0.1:5173"
+        value: "http://localhost:5173,http://127.0.0.1:5173,https://attendentx.vercel.app"
       - key: CSRF_TRUSTED_ORIGINS
-        value: "http://localhost:5173,http://127.0.0.1:5173"
+        value: "http://localhost:5173,http://127.0.0.1:5173,https://attendentx.vercel.app,https://*.vercel.app,https://attendentx.onrender.com,https://*.onrender.com"
       - key: NUM_PROXIES
         value: "1"
       - key: DEFAULT_OFFICE_IP

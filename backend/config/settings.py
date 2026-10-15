@@ -193,19 +193,30 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://192\.168\.\d+\.\d+:\d+$",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['X-CSRFToken', 'Content-Disposition']
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip().rstrip('/')
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173,https://*.vercel.app,https://*.onrender.com'
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173,https://attendentx.vercel.app,https://*.vercel.app,https://attendentx.onrender.com,https://*.onrender.com'
     ).split(',')
     if origin.strip()
 ]
-if 'https://*.vercel.app' not in CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
-if 'https://*.onrender.com' not in CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
+for forced_origin in [
+    'https://attendentx.vercel.app',
+    'https://*.vercel.app',
+    'https://attendentx.onrender.com',
+    'https://*.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+]:
+    if forced_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(forced_origin)
+
+# Reverse proxy SSL header (required for Render / Cloudflare proxies)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Cookie Security
 SESSION_COOKIE_HTTPONLY = True
