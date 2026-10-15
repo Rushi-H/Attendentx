@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { Logo } from '../ui/Logo';
 import { clsx } from 'clsx';
 
 interface SidebarProps {
@@ -67,14 +68,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         )}
       >
         {/* Brand header */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
-          <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-white tracking-tight">OfficePulse</h1>
-            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Attendance System</p>
-          </div>
+        <div className="h-16 flex items-center px-6 border-b border-slate-800">
+          <Logo size="md" showText={true} textVariant="light" subtitle="Attendance System" />
         </div>
 
         {/* Navigation items */}

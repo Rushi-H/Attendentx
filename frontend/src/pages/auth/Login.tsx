@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Building2, Lock, Mail, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Logo } from '../../components/ui/Logo';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Alert } from '../../components/ui/Alert';
@@ -57,15 +58,13 @@ export const Login: React.FC = () => {
     <div className="min-h-screen bg-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-2xl bg-brand-600 flex items-center justify-center text-white shadow-xl shadow-brand-600/30">
-            <Building2 className="w-7 h-7" />
-          </div>
+          <Logo size="xl" showText={false} />
         </div>
         <h2 className="mt-4 text-center text-2xl font-extrabold text-slate-900 tracking-tight">
-          Office Attendance Portal
+          Developer's Academy
         </h2>
         <p className="mt-1 text-center text-xs text-slate-500">
-          Secure, Network-Verified Attendance Management
+          Student & Staff Attendance Portal
         </p>
       </div>
 
@@ -110,7 +109,7 @@ export const Login: React.FC = () => {
           </form>
 
           {/* Development Quick-Fill helper */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
+          {/* <div className="mt-8 pt-6 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-3">
               <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
               Quick Demo Accounts
@@ -138,7 +137,7 @@ export const Login: React.FC = () => {
                 Employee
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
