@@ -23,7 +23,13 @@ def custom_exception_handler(exc, context):
         code = getattr(exc, 'default_code', 'API_ERROR').upper()
         if hasattr(exc, 'detail'):
             if isinstance(exc.detail, dict):
-                message = "Validation or processing error occurred."
+                if 'non_field_errors' in exc.detail and exc.detail['non_field_errors']:
+                    message = str(exc.detail['non_field_errors'][0])
+                elif 'detail' in exc.detail:
+                    message = str(exc.detail['detail'])
+                else:
+                    first_val = next(iter(exc.detail.values()))
+                    message = str(first_val[0]) if isinstance(first_val, list) and first_val else str(first_val)
                 details = exc.detail
             elif isinstance(exc.detail, list):
                 message = str(exc.detail[0]) if exc.detail else "Error occurred."

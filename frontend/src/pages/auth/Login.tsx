@@ -31,10 +31,16 @@ export const Login: React.FC = () => {
         navigate(from, { replace: true });
       }
     } catch (err: any) {
-      const message =
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
-        'Unable to log in. Please check your credentials.';
+      let message = 'Unable to log in. Please check your credentials.';
+      if (err.response?.data?.error?.message) {
+        message = err.response.data.error.message;
+      } else if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err.message && err.message.toLowerCase().includes('network')) {
+        message = 'Network / CORS Error: Unable to reach the server. Please verify your internet connection or backend CORS settings.';
+      } else if (err.message) {
+        message = err.message;
+      }
       setError(message);
     } finally {
       setIsLoading(false);

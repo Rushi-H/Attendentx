@@ -181,9 +181,16 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip().rstrip('/')
     for origin in os.environ.get(
         'CORS_ALLOWED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173'
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173,https://attendentx.vercel.app'
     ).split(',')
     if origin.strip()
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+    r"^http://192\.168\.\d+\.\d+:\d+$",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -191,21 +198,25 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip().rstrip('/')
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173'
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://192.168.1.20:5173,https://*.vercel.app,https://*.onrender.com'
     ).split(',')
     if origin.strip()
 ]
+if 'https://*.vercel.app' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
+if 'https://*.onrender.com' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
 
 # Cookie Security
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
+SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'None' if not DEBUG else 'Lax')
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_AGE = 86400 * 7  # 7 days
 
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = os.environ.get('CSRF_COOKIE_SAMESITE', 'Lax')
+CSRF_COOKIE_SAMESITE = os.environ.get('CSRF_COOKIE_SAMESITE', 'None' if not DEBUG else 'Lax')
 CSRF_COOKIE_SECURE = not DEBUG
 
 # Network Proxy Security
-NUM_PROXIES = int(os.environ.get('NUM_PROXIES', '0'))
+NUM_PROXIES = int(os.environ.get('NUM_PROXIES', '1' if not DEBUG else '0'))
 DEFAULT_OFFICE_IP = os.environ.get('DEFAULT_OFFICE_IP', '223.236.99.39')
